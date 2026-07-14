@@ -1,0 +1,4 @@
+Model,MAE,RMSE,R2
+Random Forest,67.14,88.1,0.7497
+Gradient Boosting,65.6,85.32,0.7653
+ARIMA,214.58,265.12,-1.2739

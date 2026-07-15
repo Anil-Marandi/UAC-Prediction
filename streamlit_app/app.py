@@ -317,72 +317,103 @@ elif page == "Prediction":
         "Select Model",
         [
             "Random Forest",
-            "Gradient Boosting"
+            "Gradient Boosting",
+            "ARIMA"
         ]
     )
 
-    lag1 = st.number_input("Lag_1", value=2400.0)
-    lag7 = st.number_input("Lag_7", value=2400.0)
-    lag14 = st.number_input("Lag_14", value=2400.0)
+    # ==========================
+    # ARIMA
+    # ==========================
+    if model_name == "ARIMA":
 
-    rolling7 = st.number_input("Rolling Mean 7", value=2400.0)
-    rolling14 = st.number_input("Rolling Mean 14", value=2400.0)
-    rollingstd7 = st.number_input("Rolling Std 7", value=50.0)
-
-    cbp = st.number_input("Children in CBP custody", value=200.0)
-    transfer = st.number_input("Children transferred out of CBP custody", value=150.0)
-    apprehended = st.number_input("Children apprehended and placed in CBP custody", value=100.0)
-    discharged = st.number_input("Children discharged from HHS Care", value=100.0)
-
-    netpressure = st.number_input("Net Pressure", value=50.0)
-
-    day = st.number_input("Day", value=15)
-    month = st.number_input("Month", value=7)
-    weekday = st.number_input("Weekday", value=2)
-    week = st.number_input("Week", value=28)
-
-    if st.button("Predict"):
-
-        X = pd.DataFrame([[
-            apprehended,
-            cbp,
-            transfer,
-            discharged,
-            lag1,
-            lag7,
-            lag14,
-            rolling7,
-            rolling14,
-            rollingstd7,
-            netpressure,
-            day,
-            month,
-            weekday,
-            week
-        ]],
-        columns=[
-            "Children apprehended and placed in CBP custody*",
-            "Children in CBP custody",
-            "Children transferred out of CBP custody",
-            "Children discharged from HHS Care",
-            "Lag_1",
-            "Lag_7",
-            "Lag_14",
-            "RollingMean7",
-            "RollingMean14",
-            "RollingStd7",
-            "NetPressure",
-            "Day",
-            "Month",
-            "Weekday",
-            "Week"
-        ])
-
-        if model_name == "Random Forest":
-            prediction = rf_model.predict(X)[0]
-        else:
-            prediction = gb_model.predict(X)[0]
-
-        st.success(
-            f"Predicted Children in HHS Care : {prediction:.2f}"
+        steps = st.number_input(
+            "Forecast Steps",
+            min_value=1,
+            value=1
         )
+
+        if st.button("Forecast"):
+
+            forecast = arima_model.forecast(steps=steps)
+
+            st.success(
+                f"Forecasted Children in HHS Care : {forecast.iloc[-1]:.2f}"
+            )
+
+    # ==========================
+    # Random Forest & Gradient Boosting
+    # ==========================
+    else:
+
+        lag1 = st.number_input("Lag_1", value=2400.0)
+        lag7 = st.number_input("Lag_7", value=2400.0)
+        lag14 = st.number_input("Lag_14", value=2400.0)
+
+        rolling7 = st.number_input("Rolling Mean 7", value=2400.0)
+        rolling14 = st.number_input("Rolling Mean 14", value=2400.0)
+        rollingstd7 = st.number_input("Rolling Std 7", value=50.0)
+
+        cbp = st.number_input("Children in CBP custody", value=200.0)
+        transfer = st.number_input("Children transferred out of CBP custody", value=150.0)
+        apprehended = st.number_input("Children apprehended and placed in CBP custody", value=100.0)
+        discharged = st.number_input("Children discharged from HHS Care", value=100.0)
+
+        netpressure = st.number_input("Net Pressure", value=50.0)
+
+        day = st.number_input("Day", value=15)
+        month = st.number_input("Month", value=7)
+        weekday = st.number_input("Weekday", value=2)
+        week = st.number_input("Week", value=28)
+
+        if st.button("Predict"):
+
+            X = pd.DataFrame([[
+
+                apprehended,
+                cbp,
+                transfer,
+                discharged,
+                lag1,
+                lag7,
+                lag14,
+                rolling7,
+                rolling14,
+                rollingstd7,
+                netpressure,
+                day,
+                month,
+                weekday,
+                week
+
+            ]],
+
+            columns=[
+
+                "Children apprehended and placed in CBP custody*",
+                "Children in CBP custody",
+                "Children transferred out of CBP custody",
+                "Children discharged from HHS Care",
+                "Lag_1",
+                "Lag_7",
+                "Lag_14",
+                "RollingMean7",
+                "RollingMean14",
+                "RollingStd7",
+                "NetPressure",
+                "Day",
+                "Month",
+                "Weekday",
+                "Week"
+
+            ])
+
+            if model_name == "Random Forest":
+                prediction = rf_model.predict(X)[0]
+
+            else:
+                prediction = gb_model.predict(X)[0]
+
+            st.success(
+                f"Predicted Children in HHS Care : {prediction:.2f}"
+            )
